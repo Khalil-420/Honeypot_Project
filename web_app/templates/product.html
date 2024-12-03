@@ -8,16 +8,18 @@
 </head>
 <body>
     <header>
+        <div class="product">
         <h1>{{ product.name }}</h1>
-        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}">
+        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="product">
         <p>{{ product.price }}</p>
+        </div>
     </header>
 
     <section>
         <h2>Reviews</h2>
         <ul>
             {% for review in reviews %}
-                <li>{{ review.text|safe }}</li>
+                <li>{{ review.text }}</li>
             {% endfor %}
         </ul>
 

@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  honeypot:
+    build:
+      context: ./honeypot
+    container_name: honeypot
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./honeypot/database/logs/logs.db:/app/database/logs/logs.db  # Volume for logs.db
+    networks:
+      - backend
+
+  web_app:
+    build:
+      context: ./web_app
+    container_name: web_app
+    ports:
+      - "5002:5000"
+    networks:
+      - backend
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/allowed_ips.txt:/etc/nginx/allowed_ips.txt:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - honeypot
+      - web_app
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

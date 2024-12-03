@@ -1,13 +1,14 @@
 import sqlite3
 import os
+from datetime import datetime
+import base64
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
 # Path to your SQLite database files
-HONEY_POT_DB = 'honeypot.db'
-LOGS_DB = 'logs.db'
-
+HONEY_POT_DB = 'database/honeypot.db'
+LOGS_DB = 'database/logs/logs.db'
 
 # Function to get a connection to the honeypot database (for products and login data)
 def get_honeypot_db():
@@ -62,7 +63,6 @@ def create_tables():
     conn.commit()
     conn.close()
 
-
 def add_products():
     conn = get_honeypot_db()
     cursor = conn.cursor()
@@ -78,32 +78,94 @@ def add_products():
     
     conn.close()
 
-# Function to log the vulnerable request in the logs database
 def log_vulnerable_request():
     ip_address = request.remote_addr  # Get the IP address of the requester
-    endpoint = request.endpoint  # Get the endpoint that was accessed
-    request_data = request.get_data(as_text=True)  # Get the request body
-    timestamp = request.date  # Get the timestamp of the request
+    endpoint = request.path.split()[0]  # The endpoint the user is accessing
+    timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')  # Timestamp in UTC format
+
+    # Initialize request_data as None
+    request_data = None
+
+    # Detect SQL injection in URL path (if any)
+    if request.method == 'GET' and 'product' in request.path:
+        # Check for SQL injection patterns in the URL path
+        sql_injection_patterns = ['UNION', 'SELECT', 'DROP', '--', '/*', '*/', 'OR 1=1', 'INSERT']
+        for pattern in sql_injection_patterns:
+            if pattern in request.path.upper():
+                request_data = " ".join(request.path.split()[1:])
+                break
+
+    # Handle POST request payload
+    if request.method == 'POST' and 'review' in request.path:
+        # If the content is form data (standard POST form)
+        if request.form:
+            form_data = {key: value for key, value in request.form.items()}
+            request_data = str(form_data['review'])  # Convert the dictionary to string for logging
+            
+    elif request.method == 'POST' and 'add_product' in request.path:
+        file_data = {}
+        
+        for file in request.files.values():
+            # Read the file content and encode it in base64
+            file_content_base64 = base64.b64encode(file.read()).decode('utf-8') 
+            
+            file_data[file.filename] = file_content_base64
+            
+            file.seek(0)
+        
+        # You can log the full data for all files here
+        request_data = str(file_data)  # Convert file data to a string
+
+    # If no SQL injection or request data detected in the previous steps, set request_data to 'No vulnerable data'
+    if request_data is None:
+        request_data = 'No vulnerable data'
 
     # Insert the log data into the logs table in the logs database
     conn = get_logs_db()
     cursor = conn.cursor()
-
     cursor.execute('''INSERT INTO logs (timestamp, ip_address, endpoint, payload_used) 
                       VALUES (?, ?, ?, ?)''', (timestamp, ip_address, endpoint, request_data))
 
     conn.commit()
     conn.close()
 
-# Before request hook to log the vulnerable requests
+    # Optionally, print or return the log in comma-separated format
+    log_entry = f"{ip_address}, {timestamp}, {request_data}, {endpoint}"
+
+# Function to validate if the file uploaded is an image
+def is_image_file(file):
+    if file and '.' in file.filename:
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        return ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff']
+    return False
+
+# Before request hook to log different types of vulnerable requests
 @app.before_request
 def before_request():
-    # Define the vulnerable endpoints you want to log
-    vulnerable_endpoints = ['/product/<product_id>/review', '/add_product','/product/<product_id>']
+    ip_address = request.remote_addr
+    # Check for potential SQL injection attempts in the URL path (e.g., /product/<product_id>)
+    if request.path.startswith('/product/') and request.method == 'GET':
+        # Get the product_id from the URL path (directly in the URL, not as a query parameter)
+        product_id = request.view_args.get('product_id', '')
+        
+        # Detect common SQL injection patterns such as UNION, SELECT, '--', and other suspicious keywords
+        sql_injection_patterns = ['UNION', 'SELECT', 'DROP', '--', '/*', '*/', 'OR 1=1', 'INSERT']
+        
+        # Check if any of the SQL injection patterns are in the product_id
+        if any(pattern in product_id.upper() for pattern in sql_injection_patterns):
+            log_vulnerable_request()  # Log the request if a SQL injection pattern is detected
 
-    # Check if the accessed endpoint is vulnerable
-    if request.endpoint in vulnerable_endpoints:
-        log_vulnerable_request()
+    # Check for potential XSS attempts in /product/<product_id>/review (POST request)
+    elif request.path.startswith('/product/') and '/review' in request.path and request.method == 'POST':
+        review_text = request.form.get('review', '')
+        if '<' in review_text and '>' in review_text:
+            log_vulnerable_request()  # Log if there is potential XSS in the review text
+            
+    elif request.method == 'POST' and 'image' in request.files:
+        uploaded_file = request.files['image']
+        
+        if not is_image_file(uploaded_file):
+            log_vulnerable_request()  # Log the request if the uploaded file is not an image
 
 @app.route('/')
 def index():
@@ -131,13 +193,11 @@ def product(product_id):
 # Route for adding a review to a product
 @app.route('/product/<product_id>/review', methods=['POST'])
 def add_review(product_id):
-    review_text = request.form['review']
-
+    review_text = request.form.get('review', '')
     conn = get_honeypot_db()
     cursor = conn.cursor()
 
-    cursor.execute('''INSERT INTO reviews (product_id, text) 
-    VALUES (?, ?)''', (product_id, review_text))
+    cursor.execute('INSERT INTO reviews (product_id, text) VALUES (?, ?)', (product_id, review_text))
 
     conn.commit()
     conn.close()
@@ -146,12 +206,10 @@ def add_review(product_id):
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
     if request.method == 'POST':
-        # Get form data for product
         name = request.form['name']
         price = request.form['price']
         image = request.files['image']
 
-        # Save the image to the static folder
         image_filename = image.filename
         image.save(os.path.join('static/images', image_filename))
 
@@ -161,14 +219,11 @@ def add_product():
         conn.commit()
         conn.close()
 
-        # Redirect to the home page after adding the product
         return redirect(url_for('index'))
 
     return render_template('add_product.html')
 
-# Initialize the databases (create tables)
-create_tables()
-add_products()
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    create_tables()
+    add_products()
+    app.run()

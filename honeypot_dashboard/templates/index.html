@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honeypot Dashboard</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Honeypot Analytics Dashboard</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Payloads Distribution</h2>
+            <canvas id="payloadsChart"></canvas>
+        </section>
+        <section>
+            <h2>Endpoints Distribution</h2>
+            <canvas id="endpointsChart"></canvas>
+        </section>
+        <section>
+            <h2>IP Address Distribution</h2>
+            <canvas id="ipChart"></canvas>
+        </section>
+        <section>
+            <h2>Total Requests Per IP Address</h2>
+            <table id="requestsTable">
+                <thead>
+                    <tr>
+                        <th>IP Address</th>
+                        <th>Total Requests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic rows will be added here -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <script src="/static/js/charts.js"></script>
+</body>
+</html>

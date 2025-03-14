@@ -1,0 +1,271 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f3e7e9, #e3eeff);
+    color: #333;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Header Styling */
+header {
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 40px;
+    animation: fadeInDown 1s ease-in-out;
+}
+
+header h1 {
+    font-size: 3rem;
+    color: #4A00E0;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Navbar Styling */
+nav {
+    width: 100%;
+    height: 20%;
+    background: linear-gradient(135deg, #FF512F, #DD2476); /* Gradient background */
+    padding: 1px 100; /* Adjusted padding for navbar height */
+    top: 0;
+    left: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for a nice effect */
+    margin: 0; /* Ensure no margin is added */
+}
+
+
+
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 0;
+} 
+
+nav ul li {
+    font-size: 0.2rem;
+} 
+
+nav ul li a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: bold;
+    padding: 1px 20px;
+    border-radius: 25px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+nav ul li a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* Product Page Styling */
+section {
+    width: 90%;
+    max-width: 1200px;
+    margin-top: 120px; /* Adjusted for fixed navbar */
+    padding-bottom: 40px;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+h3 {
+    font-size: 1.6rem;
+    margin-top: 20px;
+}
+
+textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    resize: vertical;
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: #FF512F;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin: 20px 0;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #DD2476;
+    transform: scale(1.05);
+}
+
+ul {
+    list-style-type: none;
+    margin-top: 50px;
+}
+
+ul li {
+    background: #f8f8f8; /* Light background color */
+    padding: 10px; /* Increased padding for better spacing */
+    margin: 12px 0; /* Increased margin for more separation */
+    border-radius: 15px; /* Softer corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    display: flex; /* Enable Flexbox */
+    justify-content: center; /* Horizontally center the content */
+    align-items: flex-start; /* Align content to the top */
+    text-align: center; /* Center the text horizontally */
+    padding-top: 2px; /* Add extra top padding to move text up a little */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition on hover */
+}
+
+ul li:hover {
+    transform: translateY(-5px); /* Slight upward movement for hover effect */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+}
+
+footer a {
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: #4A00E0;
+    margin-top: 30px;
+    display: inline-block;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #FF512F;
+}
+
+/* Add Product Page Styling */
+form {
+    width: 90%;
+    max-width: 600px;
+    margin-top: 40px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+form button {
+    background-color: #FF512F;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+form button:hover {
+    background-color: #DD2476;
+    transform: scale(1.05);
+}
+
+a {
+    text-decoration: none;
+    color: #4A00E0;
+    font-size: 1.2rem;
+    margin-top: 20px;
+    display: inline-block;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #FF512F;
+}
+
+/* Product Grid Styling (Horizontal Layout) */
+.products {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.product {
+    background: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 250px; /* Set a fixed width for products */
+    margin: 20px;
+}
+
+.product img {
+    width: 100%;
+    height: 200px; /* Fixed height for images */
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.product h2 {
+    font-size: 1.5rem;
+    color: #4A00E0;
+}
+
+.product p {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.product button {
+    background-color: #FF512F;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.product button:hover {
+    background-color: #DD2476;
+    transform: scale(1.05);
+}
+
+/* Image Size Fix */
+.product img {
+    max-width: 100%;
+    height: 200px; /* Fixed height */
+    object-fit: cover;
+}
